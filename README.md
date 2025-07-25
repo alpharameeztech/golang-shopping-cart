@@ -17,6 +17,15 @@ This repository contains a Go application for managing products and their prices
 
 ---
 
+
+## Environment Configuration
+
+1. Copy the example `.env` file:
+   ```bash
+   cp .env.example .env
+
+---
+
 ## 🚀 Application Setup
 
 ### Prerequisites
