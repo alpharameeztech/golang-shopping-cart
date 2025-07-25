@@ -44,8 +44,17 @@ func (h *CatalogHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		offset = 0
 	}
 
-	// Get data
-	res, total, err := h.repo.GetAllProducts(offset, limit)
+	// Filters
+	category := r.URL.Query().Get("category")
+	priceLt := 0.0
+	if p := r.URL.Query().Get("price_lt"); p != "" {
+		if parsed, err := strconv.ParseFloat(p, 64); err == nil {
+			priceLt = parsed
+		}
+	}
+
+	// Fetch products
+	res, total, err := h.repo.GetAllProducts(offset, limit, category, priceLt)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -68,7 +77,8 @@ func (h *CatalogHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 	// Return the products as a JSON response
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(Response{Total: int(total), Products: products}); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	json.NewEncoder(w).Encode(Response{
+		Total:    int(total),
+		Products: products,
+	})
 }
