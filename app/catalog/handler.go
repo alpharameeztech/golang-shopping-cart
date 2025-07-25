@@ -17,10 +17,10 @@ type Product struct {
 }
 
 type CatalogHandler struct {
-	repo *models.ProductsRepository
+	repo models.ProductReader
 }
 
-func NewCatalogHandler(r *models.ProductsRepository) *CatalogHandler {
+func NewCatalogHandler(r models.ProductReader) *CatalogHandler {
 	return &CatalogHandler{
 		repo: r,
 	}
@@ -44,13 +44,7 @@ func (h *CatalogHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 	// Return the products as a JSON response
 	w.Header().Set("Content-Type", "application/json")
-
-	response := Response{
-		Products: products,
-	}
-
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if err := json.NewEncoder(w).Encode(Response{Products: products}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 }

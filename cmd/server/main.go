@@ -34,9 +34,9 @@ func main() {
 	)
 	defer close()
 
-	// Initialize handlers
-	prodRepo := models.NewProductsRepository(db)
-	cat := catalog.NewCatalogHandler(prodRepo)
+	// Initialize repository and handler using interface
+	var prodReader models.ProductReader = models.NewProductsRepository(db)
+	cat := catalog.NewCatalogHandler(prodReader)
 
 	// Set up routing
 	mux := http.NewServeMux()
