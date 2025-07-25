@@ -1,33 +1,116 @@
 # Go Hiring Challenge
 
-This repository contains a Go application for managing products and their prices, including functionalities for CRUD operations and seeding the database with initial data.
+This repository contains a Go application for managing products and their prices, including functionalities for listing products, viewing product details, and seeding the database with initial data.
 
-## Project Structure
+---
 
-1. **cmd/**: Contains the main application and seed command entry points.
+## 📁 Project Structure
 
-   - `server/main.go`: The main application entry point, serves the REST API.
-   - `seed/main.go`: Command to seed the database with initial product data.
+- **`cmd/`**: Entry points
+    - `server/main.go`: Starts the REST API
+    - `seed/main.go`: Seeds the database
 
-2. **app/**: Contains the application logic.
-3. **sql/**: Contains a very simple database migration scripts setup.
-4. **models/**: Contains the data models and repositories used in the application.
-5. `.env`: Environment variables file for configuration.
+- **`app/`**: Application logic and handlers
+- **`models/`**: Data models and repository interfaces
+- **`sql/`**: Database schema and seed scripts
+- **`.env`**: Configuration file for environment variables
 
-## Setup Code Repository
+---
 
-1. Create a github/bitbucket/gitlab repository and push all this code as-is.
-2. Create a new branch, and provide a pull-request against the main branch with your changes. Instructions to follow.
+## 🚀 Application Setup
 
-## Application Setup
+### Prerequisites
 
-- Ensure you have Go installed on your machine.
-- Ensure you have Docker installed on your machine.
-- Important makefile targets:
-  - `make tidy`: will install all dependencies.
-  - `make docker-up`: will start the required infrastructure services via docker containers.
-  - `make seed`: ⚠️ Will destroy and re-create the database tables.
-  - `make test`: Will run the tests.
-  - `make run`: Will start the application.
-  - `make docker-down`: Will stop the docker containers.
+- [Go](https://golang.org/dl/)
+- [Docker](https://www.docker.com/products/docker-desktop)
 
+### Running the Project
+
+```bash
+make tidy         # Installs Go dependencies
+make docker-up    # Starts the database container
+make seed         # ⚠️ Resets and seeds the database with test data
+make run          # Starts the Go server on http://localhost:8084
+make test         # Runs unit tests
+make docker-down  # Stops and removes docker containers
+```
+
+---
+
+## 📦 API Endpoints
+
+### `GET /catalog`
+
+Returns a list of products with support for pagination and filtering.
+
+#### Query Parameters:
+
+| Param       | Type    | Description                                  |
+|-------------|---------|----------------------------------------------|
+| `offset`    | int     | Optional. Default is `0`.                    |
+| `limit`     | int     | Optional. Default is `10`. Max is `100`.     |
+| `category`  | string  | Optional. Filters products by category name. |
+| `price_lt`  | float   | Optional. Filters products with price less than this value. |
+
+#### Example:
+
+```bash
+curl "http://localhost:8084/catalog?offset=0&limit=5&category=Shoes&price_lt=20"
+```
+
+#### Sample Response:
+
+```json
+{
+  "total": 1,
+  "products": [
+    {
+      "code": "PROD007",
+      "price": 18.2,
+      "category": "Shoes"
+    }
+  ]
+}
+```
+
+---
+
+### `GET /catalog/:id`
+
+Returns full details of a product including its variants and category.
+
+#### Path Parameters:
+
+| Param  | Type | Description                |
+|--------|------|----------------------------|
+| `id`   | int  | Required. Product ID.      |
+
+#### Example:
+
+```bash
+curl "http://localhost:8084/catalog/1"
+```
+
+#### Sample Response:
+
+```json
+{
+  "code": "PROD001",
+  "price": 10.99,
+  "category": "Clothing",
+  "variants": [
+    {
+      "name": "Red",
+      "sku": "SKU123",
+      "price": 10.99
+    },
+    {
+      "name": "Blue",
+      "sku": "SKU124",
+      "price": 12.99
+    }
+  ]
+}
+```
+
+> **Note:** If a variant does not have a specific price, it will inherit the product's base price.
