@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/mytheresa/go-hiring-challenge/app/catalog"
 	"github.com/mytheresa/go-hiring-challenge/app/database"
+	"github.com/mytheresa/go-hiring-challenge/app/variants"
 	"github.com/mytheresa/go-hiring-challenge/models"
 )
 
@@ -34,13 +35,15 @@ func main() {
 	)
 	defer close()
 
-	// Initialize repository and handler using interface
+	// Initialize repository and handlers
 	var prodReader models.ProductReader = models.NewProductsRepository(db)
-	cat := catalog.NewCatalogHandler(prodReader)
+	catalogHandler := catalog.NewCatalogHandler(prodReader)
+	variantHandler := variants.NewVariantHandler(prodReader)
 
 	// Set up routing
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /catalog", cat.HandleGet)
+	mux.HandleFunc("GET /catalog", catalogHandler.HandleGet)
+	mux.HandleFunc("GET /catalog/", variantHandler.HandleGetByID)
 
 	// Set up the HTTP server
 	srv := &http.Server{

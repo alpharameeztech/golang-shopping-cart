@@ -6,6 +6,7 @@ import (
 
 type ProductReader interface {
 	GetAllProducts(offset, limit int, category string, priceLt float64) ([]Product, int64, error)
+	GetProductByID(id uint) (*Product, error)
 }
 
 type ProductsRepository struct {
@@ -25,12 +26,11 @@ func (r *ProductsRepository) GetAllProducts(offset, limit int, category string, 
 	query := r.db.Model(&Product{}).Preload("Variants").Preload("Category")
 
 	if category != "" {
-		query = query.Joins("JOIN categories ON categories.id = products.category_id").
-			Where("LOWER(categories.name) = LOWER(?)", category)
+		query = query.Joins("JOIN categories ON categories.id = products.category_id").Where("LOWER(categories.name) = LOWER(?)", category)
 	}
 
 	if priceLt > 0 {
-		query = query.Where("price < ?", priceLt)
+		query = query.Where("products.price < ?", priceLt)
 	}
 
 	query.Count(&total)
@@ -38,5 +38,14 @@ func (r *ProductsRepository) GetAllProducts(offset, limit int, category string, 
 	if err := query.Offset(offset).Limit(limit).Find(&products).Error; err != nil {
 		return nil, 0, err
 	}
+
 	return products, total, nil
+}
+
+func (r *ProductsRepository) GetProductByID(id uint) (*Product, error) {
+	var product Product
+	if err := r.db.Preload("Variants").Preload("Category").First(&product, id).Error; err != nil {
+		return nil, err
+	}
+	return &product, nil
 }
