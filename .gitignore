@@ -34,7 +34,6 @@ Godeps/
 
 # Environment files
 .env
-.env.*
 
 # Build directories
 bin/
