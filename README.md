@@ -1,4 +1,4 @@
-# Go Hiring Challenge
+# Go Shopping Cart
 
 This repository contains a Go application for managing products and their prices, including functionalities for listing products, viewing product details, and seeding the database with initial data.
 
